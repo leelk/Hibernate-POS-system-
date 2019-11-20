@@ -1,11 +1,22 @@
 package lk.ijse.dep.pos.entity;
 
-public class Customer implements SuperEntity{
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.ArrayList;
+import java.util.List;
 
+@Entity
+public class Customer implements SuperEntity{
+    @Id
     private String customerId;
     private String name;
     private String address;
-//    private Gender gender;
+
+    @OneToMany(mappedBy = "customer",cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH,CascadeType.REMOVE})
+    private List<Order> orders = new ArrayList<>();
+
 
     public Customer() {
     }
@@ -72,4 +83,22 @@ public class Customer implements SuperEntity{
 //                ", gender=" + gender +
                 '}';
     }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void addOrder(Order order){
+        order.setCustomer(this);
+        this.orders.add(order);
+    }
+
+    public void removeOrder(Order order){
+        if (order.getCustomer() != this){
+            throw new RuntimeException("Invalid order");
+        }
+        order.setCustomer(null);
+        this.orders.remove(order);
+    }
+
 }
